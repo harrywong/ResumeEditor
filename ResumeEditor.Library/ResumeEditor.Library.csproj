@@ -55,6 +55,9 @@
     <Compile Include="Messages\Message.cs" />
     <Compile Include="Messages\MessageException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResumeData\Resume.cs" />
+    <Compile Include="ResumeData\ResumeItem.cs" />
+    <Compile Include="ResumeData\ResumeException.cs" />
     <Compile Include="Torrents\BitField.cs" />
     <Compile Include="Torrents\Enums.cs" />
     <Compile Include="Torrents\HashAlgoFactory.cs" />
@@ -66,9 +69,7 @@
     <Compile Include="Torrents\TorrentException.cs" />
     <Compile Include="Torrents\TorrentFile.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Resume\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

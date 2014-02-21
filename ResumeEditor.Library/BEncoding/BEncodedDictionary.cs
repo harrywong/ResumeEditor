@@ -134,6 +134,15 @@ namespace ResumeEditor.BEncoding
             return DecodeTorrent(new RawReader(s));
         }
 
+        public static BEncodedDictionary DecodeResumeData(byte[] bytes)
+        {
+            return DecodeResumeData(new MemoryStream(bytes));
+        }
+
+        public static BEncodedDictionary DecodeResumeData(Stream s)
+        {
+            return DecodeResumeData(new RawReader(s));
+        }
 
         /// <summary>
         /// Special decoding method for torrent files - allows dictionary attributes to be out of order for the
@@ -170,6 +179,41 @@ namespace ResumeEditor.BEncoding
                 throw new BEncodingException("Invalid data found. Aborting");
 
             return torrent;
+        }
+
+        /// <summary>
+        /// Special decoding method for resume data files - allows dictionary attributes to be out of order for the
+        /// overall resume data file
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        public static BEncodedDictionary DecodeResumeData(RawReader reader)
+        {
+            BEncodedString key = null;
+            BEncodedValue value = null;
+            BEncodedDictionary resume = new BEncodedDictionary();
+            if (reader.ReadByte() != 'd')
+                throw new BEncodingException("Invalid data found. Aborting"); // Remove the leading 'd'
+
+            while ((reader.PeekByte() != -1) && (reader.PeekByte() != 'e'))
+            {
+                key = (BEncodedString)BEncodedValue.Decode(reader);         // keys have to be BEncoded strings
+
+                if (reader.PeekByte() == 'd')
+                {
+                    value = new BEncodedDictionary();
+                        ((BEncodedDictionary)value).DecodeInternal(reader, false);
+                }
+                else
+                    value = BEncodedValue.Decode(reader);                     // the value is a BEncoded value
+
+                resume.dictionary.Add(key, value);
+            }
+
+            if (reader.ReadByte() != 'e')                                    // remove the trailing 'e'
+                throw new BEncodingException("Invalid data found. Aborting");
+
+            return resume;
         }
 
         #endregion

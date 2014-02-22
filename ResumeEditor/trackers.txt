@@ -34,6 +34,7 @@ PlayBits  playbits-announce.ru
 CHD  tracker.chdbits.org
 TTG  tracker.ttg.im
 HDW  tracker.hdwing.com
+HDW tracker.hdchina.org
 CMCT  tracker.hdcmct.org
 TLF  pt.eastgame.org
 M-Team  tp.m-team.cc

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using ResumeEditor.BEncoding;
 
 namespace ResumeEditor.ResumeData
@@ -19,7 +20,7 @@ namespace ResumeEditor.ResumeData
         private int _trackerMode;
         private List<string> _trackers;
         private string _label;
-        private List<string> _labels; 
+        private List<string> _labels;
 
         private string _torrentName;
         private BEncodedDictionary _origionalDictionary;
@@ -97,8 +98,24 @@ namespace ResumeEditor.ResumeData
                                 ((BEncodedList)keypair.Value).Cast<BEncodedString>().Select(c => c.Text).ToList();
                             break;
                         case "trackers":
-                            this._trackers =
-                                ((BEncodedList)keypair.Value).Cast<BEncodedString>().Select(c => c.Text).ToList();
+                            try
+                            {
+                                var list1 = ((BEncodedList)keypair.Value);
+                                if (list1[0] is BEncodedList)
+                                {
+                                    this._trackers =
+                                        ((BEncodedList)list1[0]).Cast<BEncodedString>().Select(c => c.Text).ToList();
+                                }
+                                else
+                                {
+                                    this._trackers = list1.Cast<BEncodedString>().Select(c => c.Text).ToList();
+                                }
+                            }
+                            catch
+                            {
+                                this._trackers = new List<string>();
+                            }
+
                             break;
                     }
                 }
@@ -180,6 +197,15 @@ namespace ResumeEditor.ResumeData
         {
             get { return _torrentName; }
             set { _torrentName = value; }
+        }
+
+        public string Tracker
+        {
+            get
+            {
+                if (this._trackers != null && this._trackers.Count > 0) return this._trackers[0];
+                else return null;
+            }
         }
 
         #endregion

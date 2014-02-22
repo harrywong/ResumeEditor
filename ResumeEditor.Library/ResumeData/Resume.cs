@@ -14,6 +14,46 @@ namespace ResumeEditor.ResumeData
         private List<ResumeItem> _resumeItems;
         private byte[] _fileGuard;
 
+        public void Save(IList<ResumeItem> resumeItems)
+        {
+            foreach (var keypair in this._originalDictionary)
+            {
+                if (keypair.Value is BEncodedDictionary)
+                {
+                    var dic = (BEncodedDictionary)keypair.Value;
+                    var item = resumeItems.FirstOrDefault(c => c.TorrentName == keypair.Key.Text);
+                    if (item != null)
+                    {
+                        if (dic.ContainsKey("label"))
+                        {
+                            dic["label"] = new BEncodedString(item.Label);
+
+                        }
+                        else
+                        {
+                            dic.Add("label", new BEncodedString(item.Label));
+                        }
+                    }
+                }
+            }
+            File.WriteAllBytes(this._resumePath, this._originalDictionary.Encode());
+        }
+
+        public string Backup()
+        {
+            int i = 0;
+            for (; i < 999; i++)
+            {
+                string filename = Path.Combine(Path.GetDirectoryName(this._resumePath), Path.GetFileNameWithoutExtension(this._resumePath) + ".bak" + i.ToString("000") + ".dat");
+                if (!File.Exists(filename))
+                {
+                    File.Copy(this._resumePath, filename);
+                    return filename;
+                }
+            }
+            return null;
+        }
+
         #region LoadFunctions
 
         public static Resume Load(string path)
@@ -30,6 +70,7 @@ namespace ResumeEditor.ResumeData
             using (var file = File.OpenRead(path))
             {
                 Resume resume = Resume.LoadCore(BEncodedDictionary.DecodeResumeData(file));
+                resume.ResumePath = path;
                 return resume;
             }
         }
@@ -64,9 +105,12 @@ namespace ResumeEditor.ResumeData
                         this._fileGuard = ((BEncodedString)keypair.Value).TextBytes;
                         continue;
                     }
-                    var item = ResumeItem.Load((BEncodedDictionary)keypair.Value);
-                    item.TorrentName = keypair.Key.Text;
-                    this._resumeItems.Add(item);
+                    if (keypair.Value is BEncodedDictionary)
+                    {
+                        var item = ResumeItem.Load((BEncodedDictionary)keypair.Value);
+                        item.TorrentName = keypair.Key.Text;
+                        this._resumeItems.Add(item);
+                    }
                 }
             }
             catch (Exception ex)

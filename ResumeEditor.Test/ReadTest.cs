@@ -14,7 +14,7 @@ namespace ResumeEditor.Test
         [TestMethod]
         public void TestReadResumeData()
         {
-            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resumes", "resume1.dat");
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resumes", "resume3.dat");
             var resumeInformation = (BEncodedDictionary)BEncodedDictionary.DecodeResumeData(File.OpenRead(path));
             foreach (var pair in resumeInformation)
             {
@@ -25,7 +25,7 @@ namespace ResumeEditor.Test
         [TestMethod]
         public void TestLoadReume()
         {
-            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resumes", "resume1.dat");
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resumes", "resume3.dat");
             var resume = Resume.Load(path);
             foreach (var item in resume.ResumeItems)
             {

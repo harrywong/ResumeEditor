@@ -4,12 +4,14 @@
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:command="http://www.galasoft.ch/mvvmlight"
         DataContext="{Binding Source={StaticResource Locator}, Path=Main}"
-        Title="ResumeEditor v0.2" Height="768" Width="1024">
+        Title="ResumeEditor v0.1" Height="768" Width="1024">
     <Window.Resources>
         <Style TargetType="Button">
             <Setter Property="Padding" Value="10,5"></Setter>
         </Style>
-
+        <ContextMenu x:Key="ListContextMenu">
+            <MenuItem Header="Open in explorer" Command="{Binding OpenExplorerCommand}" CommandParameter="{Binding ElementName=DataGrid}"></MenuItem>
+        </ContextMenu>
     </Window.Resources>
     <Grid Margin="10">
         <Grid.RowDefinitions>
@@ -21,19 +23,9 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"></ColumnDefinition>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
-                <ColumnDefinition Width="Auto"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <TextBox Grid.Column="0" Margin="0" Text="{Binding ResumeDataFilePath}" IsReadOnly="True" VerticalContentAlignment="Center"></TextBox>
-            <Button Grid.Column="1" Content="Open" Padding="10,5" Margin="10,0,0,0" Command="{Binding LoadResumeDataCommand}"></Button>
-            <ComboBox Grid.Column="2" Width="200" VerticalContentAlignment="Center" Margin="10,0,0,0" ItemsSource="{Binding UTorrents}" SelectedIndex="0" DisplayMemberPath="Title" SelectedValuePath="ResumePath" SelectedValue="{Binding SelectedResume}">
-                <i:Interaction.Triggers>
-                    <i:EventTrigger EventName="SelectionChanged">
-                        <command:EventToCommand
-                                    Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.SelectUTorrentChangedCommand}"
-                                    PassEventArgsToCommand="False" />
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>
-            </ComboBox>
+            <Button Grid.Column="1" Content="Select" Padding="10,5" Margin="10,0,0,0" Command="{Binding LoadResumeDataCommand}"></Button>
         </Grid>
         <Grid Grid.Row="1" Margin="0,10">
             <Grid.ColumnDefinitions>
@@ -104,18 +96,13 @@
                     </TextBox>
                 </Grid>
             </Grid>
-            <DataGrid Grid.Column="2" ItemsSource="{Binding DisplayItems}" AutoGenerateColumns="False" GridLinesVisibility="All" HorizontalGridLinesBrush="LightGray" VerticalGridLinesBrush="LightGray" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True">
+            <DataGrid x:Name="DataGrid" Grid.Column="2" ItemsSource="{Binding DisplayItems}" AutoGenerateColumns="False" GridLinesVisibility="All" HorizontalGridLinesBrush="LightGray" VerticalGridLinesBrush="LightGray" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Title" Binding="{Binding Caption}" Width="*"></DataGridTextColumn>
                     <DataGridTextColumn Header="Path" Binding="{Binding Path}" Width="200"></DataGridTextColumn>
                     <DataGridTextColumn Header="Tracker" Binding="{Binding Tracker}" Width="200"></DataGridTextColumn>
                     <DataGridTextColumn Header="AddOn" Binding="{Binding AddOn}" Width="150"></DataGridTextColumn>
                 </DataGrid.Columns>
-                <DataGrid.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="Open in explorer" Command="{Binding OpenExplorerCommand}" CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}},Path=PlacementTarget}"></MenuItem>
-                    </ContextMenu>
-                </DataGrid.ContextMenu>
             </DataGrid>
         </Grid>
         <Grid Grid.Row="2">

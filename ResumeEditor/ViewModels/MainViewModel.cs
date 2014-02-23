@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -19,15 +20,23 @@ namespace ResumeEditor.ViewModels
         private Labels _displayLabels;
         private string _labelMode;
         private string _resumeDataFilePath;
+        private string _titleFileter;
+        private string _sizeFilter;
+        private string _trackerFilter;
 
         private IList<ResumeItem> _resumeItems;
         private Resume _resume;
+        private List<UTorrent> _uTorrents;
+        private string _selectedResume;
 
         private RelayCommand _loadResumeDataCommand;
         private RelayCommand _createLabelsCommand;
         private RelayCommand _saveCommand;
         private RelayCommand _resetCommand;
         private RelayCommand<RoutedPropertyChangedEventArgs<object>> _treeviewSelectionChangedCommand;
+        private RelayCommand _filterCommand;
+        private RelayCommand<object> _openExplorerCommand;
+        private RelayCommand _selectUTorrentChangedCommand;
 
         private Dictionary<string, string> _trackers;
 
@@ -35,6 +44,8 @@ namespace ResumeEditor.ViewModels
         {
             this.InitCommands();
             this.UpdateLables();
+
+            this.FindUTorrent();
         }
 
         private void InitCommands()
@@ -46,19 +57,7 @@ namespace ResumeEditor.ViewModels
                 dialog.Filter = "All Files|*.*";
                 dialog.CheckFileExists = true;
                 dialog.ShowDialog();
-                try
-                {
-                    Resume resume = Resume.Load(dialog.FileName);
-                    this.Set(() => this.ResumeDataFilePath, ref this._resumeDataFilePath, dialog.FileName);
-                    this._resume = resume;
-                    this._resumeItems = resume.ResumeItems;
-                    this.UpdateLables();
-                    this.UpdateItems("All");
-                }
-                catch (Exception ex)
-                {
-                    ShowError(ex);
-                }
+                this.OpenResume(dialog.FileName);
             });
 
             this._treeviewSelectionChangedCommand = new RelayCommand<RoutedPropertyChangedEventArgs<object>>((args) =>
@@ -104,6 +103,42 @@ namespace ResumeEditor.ViewModels
                     throw new Exception("Cannot backup resume.dat, the change has not been saved.");
                 }
             });
+
+            this._filterCommand = new RelayCommand(FilterList);
+
+            this._openExplorerCommand = new RelayCommand<object>((dg) =>
+            {
+                var datagrid = (DataGrid)dg;
+                if (datagrid.SelectedItem != null)
+                {
+                    var item = (ResumeItem)datagrid.SelectedItem;
+                    Process.Start("explorer.exe", item.Path);
+                }
+            });
+
+            this._selectUTorrentChangedCommand = new RelayCommand(() => OpenResume(this._selectedResume));
+        }
+
+        private void OpenResume(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                return;
+            }
+            try
+            {
+                Resume resume = Resume.Load(this._selectedResume);
+                this.Set(() => this.ResumeDataFilePath, ref this._resumeDataFilePath, path);
+                this._resume = resume;
+                this._resumeItems = resume.ResumeItems;
+                this.UpdateLables();
+                this.UpdateItems("All");
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex);
+            }
+
         }
 
         private void UpdateLables()
@@ -139,7 +174,6 @@ namespace ResumeEditor.ViewModels
             if (label == "All")
             {
                 this.Set(() => this.DisplayItems, ref this._displayItems, this._resumeItems);
-                return;
             }
             else if (label == "Others")
             {
@@ -151,6 +185,7 @@ namespace ResumeEditor.ViewModels
                 this.Set(() => this.DisplayItems, ref this._displayItems,
                     this._resumeItems.Where(c => c.Label == label));
             }
+            this.FilterList();
         }
 
         public void CreateLabels()
@@ -231,6 +266,53 @@ namespace ResumeEditor.ViewModels
             }
         }
 
+        private void FilterList()
+        {
+            IEnumerable<ResumeItem> filteredItems = this._displayItems;
+            if (!string.IsNullOrEmpty(this._titleFileter))
+            {
+                filteredItems = filteredItems.Where(c => c.Caption.Contains(this._titleFileter));
+            }
+            if (!string.IsNullOrEmpty(this._trackerFilter))
+            {
+                filteredItems = filteredItems.Where(c => c.Tracker.Contains(this._trackerFilter));
+            }
+            this.Set(() => this.DisplayItems, ref this._displayItems, filteredItems);
+        }
+
+        private void FindUTorrent()
+        {
+            this._uTorrents = new List<UTorrent>();
+            this._uTorrents.Add(new UTorrent
+            {
+                Title = "Select from Running uTorrent(s)",
+                ResumePath = ""
+            });
+            foreach (var progess in Process.GetProcesses())
+            {
+                if (progess.ProcessName.ToUpperInvariant().Contains("UTORRENT"))
+                {
+                    try
+                    {
+                        string filename = progess.Modules[0].FileName;
+                        string resumePath = Path.Combine(Path.GetDirectoryName(filename), "resume.dat");
+                        if (File.Exists(resumePath))
+                        {
+                            this._uTorrents.Add(new UTorrent()
+                            {
+                                Title = progess.Modules[0].FileVersionInfo.ProductVersion,
+                                ResumePath = resumePath
+                            });
+                        }
+                    }
+                    catch
+                    {
+
+                    }
+                }
+            }
+        }
+
         private void ShowError(Exception ex)
         {
             MessageBox.Show("An error occoured." + Environment.NewLine + ex.Message, "ResumeEditor", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -296,10 +378,58 @@ namespace ResumeEditor.ViewModels
             set { _resetCommand = value; }
         }
 
+        public RelayCommand FilterCommand
+        {
+            get { return _filterCommand; }
+            set { _filterCommand = value; }
+        }
+
         public RelayCommand<RoutedPropertyChangedEventArgs<object>> TreeviewSelectionChangedCommand
         {
             get { return _treeviewSelectionChangedCommand; }
             set { _treeviewSelectionChangedCommand = value; }
+        }
+
+        public string TitleFileter
+        {
+            get { return _titleFileter; }
+            set { _titleFileter = value; }
+        }
+
+        public string SizeFilter
+        {
+            get { return _sizeFilter; }
+            set { _sizeFilter = value; }
+        }
+
+        public string TrackerFilter
+        {
+            get { return _trackerFilter; }
+            set { _trackerFilter = value; }
+        }
+
+        public RelayCommand<object> OpenExplorerCommand
+        {
+            get { return _openExplorerCommand; }
+            set { _openExplorerCommand = value; }
+        }
+
+        public List<UTorrent> UTorrents
+        {
+            get { return _uTorrents; }
+            set { _uTorrents = value; }
+        }
+
+        public string SelectedResume
+        {
+            get { return _selectedResume; }
+            set { _selectedResume = value; }
+        }
+
+        public RelayCommand SelectUTorrentChangedCommand
+        {
+            get { return _selectUTorrentChangedCommand; }
+            set { _selectUTorrentChangedCommand = value; }
         }
     }
 }

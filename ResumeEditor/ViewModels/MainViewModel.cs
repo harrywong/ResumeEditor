@@ -271,11 +271,11 @@ namespace ResumeEditor.ViewModels
             IEnumerable<ResumeItem> filteredItems = this._displayItems;
             if (!string.IsNullOrEmpty(this._titleFileter))
             {
-                filteredItems = filteredItems.Where(c => c.Caption.Contains(this._titleFileter));
+                filteredItems = filteredItems.Where(c => c.Caption.ToUpperInvariant().Contains(this._titleFileter.ToUpperInvariant()));
             }
             if (!string.IsNullOrEmpty(this._trackerFilter))
             {
-                filteredItems = filteredItems.Where(c => c.Tracker.Contains(this._trackerFilter));
+                filteredItems = filteredItems.Where(c => c.Tracker.ToUpperInvariant().Contains(this._trackerFilter.ToUpperInvariant()));
             }
             this.Set(() => this.DisplayItems, ref this._displayItems, filteredItems);
         }

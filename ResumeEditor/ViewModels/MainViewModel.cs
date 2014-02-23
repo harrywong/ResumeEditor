@@ -206,7 +206,14 @@ namespace ResumeEditor.ViewModels
                             drivers.FirstOrDefault(c => c.RootDirectory.FullName == Path.GetPathRoot(item.Path));
                         if (driver != null)
                         {
-                            item.Label = driver.VolumeLabel;
+                            if (!string.IsNullOrEmpty(driver.VolumeLabel))
+                            {
+                                item.Label = driver.VolumeLabel;
+                            }
+                            else
+                            {
+                                item.Label = item.Path.Substring(0, 1).ToUpperInvariant();
+                            }
                         }
                         else
                         {

@@ -1,4 +1,4 @@
-HDBits http://hdbits.org
+ï»¿HDBits http://hdbits.org
 PTP passthepopcorn.me
 BTN broadcasthe.net
 BTN tvtroppo.tk
@@ -62,11 +62,11 @@ WHU whu.edu.cn
 WHU whu6.edu.cn
 HIT  pt.hit.edu.cn
 MTPT  pt.nwsuaf6.edu.cn
-ÂìÒÏ  pt4.antsoul.com
-Ïª½§²İÌÃ  pt.xauat6.edu.cn
-±±ÑóÔ°  pttracker6.tju.edu.cn
-¶«Â½  tracker.ipv6bt.com
-¹â»ªÉçÇø  bt.upc.edu.cn
+èš‚èš  pt4.antsoul.com
+æºªæ¶§è‰å ‚  pt.xauat6.edu.cn
+åŒ—æ´‹å›­  pttracker6.tju.edu.cn
+ä¸œé™†  tracker.ipv6bt.com
+å…‰åç¤¾åŒº  bt.upc.edu.cn
 U2 dmhy.org
 ADC asiandvdclub.org
 JoyHD www.joyhd.net

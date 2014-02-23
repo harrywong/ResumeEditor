@@ -10,7 +10,7 @@ using GalaSoft.MvvmLight.Command;
 using ResumeEditor.Models;
 using ResumeEditor.ResumeData;
 
-namespace ResumeEditor.ViewModel
+namespace ResumeEditor.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {

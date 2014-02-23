@@ -1,8 +1,7 @@
-using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Ioc;
 using Microsoft.Practices.ServiceLocation;
 
-namespace ResumeEditor.ViewModel
+namespace ResumeEditor.ViewModels
 {
     public class ViewModelLocator
     {
